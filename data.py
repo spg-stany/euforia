@@ -11,7 +11,7 @@ class Data():
             'Market': 100,
             'Distribute': 100,
             'Vizier': 100,
-            'Church': 0,
+            'Church': 10,
             'Caravan': 10,
             'Inheritance': 10,
         }
@@ -49,6 +49,7 @@ class Data():
         self.famishes = 0
         self.fugitives = 0
         self.deserters = 0
+
 
 
         # казна

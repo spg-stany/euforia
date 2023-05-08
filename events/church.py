@@ -1,6 +1,7 @@
 # Митрополит
 import data, ask, say, act
 from event import Event
+from info import Info
 
 class Church(Event):
     """ Митрополит """
@@ -20,33 +21,34 @@ class Church(Event):
     #
     def invoke(self):
         """docstring for invoke"""
-        if data.money == 0:
-            data.probability['Church'] = 0
+        if self.data.money == 0:
+            self.data.probability['Church'] = 0
         else:
-            data.probability['Church'] = ask.rand(10, 50)
+            self.data.probability['Church'] = self.ask.rand(10, 50)
         super().invoke()
     
     #
     def start(self):
         """ Выделение средств на храм """
-        say.line("Митрополит ожидает средства на постройку храма.")
-        data.treasury()
+        self.say.line("Митрополит ожидает средства на постройку храма.")
+        info = Info(self.data)
+        info.treasury()
         error = True
         while error:
-            spend, error, msg = ask.number("Сколько выделяете?", data.money)
+            spend, error, msg = self.ask.number("Сколько выделяете?", self.data.money)
             if error:
-                say.line(msg)
+                self.say.line(msg)
         
-        percent = spend / data.money * 100
-        act.clear_screen()
+        percent = spend / (self.data.money + 1) * 100
+        self.say.clear_screen()
         if percent > 40:
-            say.line(ask.choice(self.generous))
+            self.say.line(self.ask.choice(self.generous))
         elif percent > 20:
-            say.line(ask.choice(self.nice))
+            self.say.line(self.ask.choice(self.nice))
         else:
-            say.line(ask.choice(self.greedy))
+            self.say.line(self.ask.choice(self.greedy))
         
-        data.money -= spend
+        self.data.money -= spend
         self.money += spend
         
         self.build()
@@ -54,5 +56,5 @@ class Church(Event):
     #
     def build(self):
         while self.money > self.price:
-            say.line(" -=- Воздвигнут храм! -=-")
+            self.say.line(" -=- Воздвигнут храм! -=-")
             self.money -= self.price
