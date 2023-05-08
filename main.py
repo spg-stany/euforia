@@ -6,9 +6,11 @@ def debug(msg):
 
 
 import os
+
 os.system('clear')
 
 import random, sys, locale
+
 locale.setlocale(locale.LC_ALL, 'ru_RU.utf-8')
 sys.path.append('./events')
 
@@ -19,7 +21,6 @@ from info import Info
 from ask import Ask
 from act import Act
 
-
 # init main modules
 say = Say()
 ask = Ask(say)
@@ -28,52 +29,48 @@ info = Info(data)
 act = Act(data, ask)
 
 # import events modules
-# from market import Market
-# from distribute import Distribute
-# from vizier import Vizier
+from market import Market
+from distribute import Distribute
+from vizier import Vizier
 from caravan import Caravan
-# from church import Church
-# from inheritance import Inheritance
+from church import Church
+from inheritance import Inheritance
 #
 # # init event modules
 events = [
-#     Market(),
-#     Distribute(),
-#     Vizier(),
+    Market(data, say, ask),
+    Distribute(data, say, ask),
+    Vizier(data, say, ask),
     Caravan(data, say, ask),
-#     Inheritance(),
-#     Church()
-
-# Marriage
-# War
+    Inheritance(data, say, ask),
+    Church(data, say, ask)
+    # Marriage
+    # War
 ]
-
 
 act.meet_new_year()
 
 # main loop
 while data.king_hp > 0 and data.anger < 100:
     act.meet_new_year()
-    
+
     say.clear_screen()
     info.big_table()
-    
+
     for event in events:
         event.invoke()
-    
+
     if not ask.yesno("Встречаете новый год?"):
         break
-    
+
     if data.money > 1000 and ask.yesno("Устраиваете новогодний бал?"):
         error = True
         while error:
             spend, error, msg = ask.number("В казне {:n} руб., сколько на рождество?".format(data.money), data.money)
             if error:
                 say.line(msg)
-            
+
         data.money -= spend
 # end of main loop
 
 debug("Год правления {:n}, здоровье короля {:n}".format(data.year, data.king_hp))
-
-

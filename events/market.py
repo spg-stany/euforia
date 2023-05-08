@@ -2,50 +2,54 @@
 import random, re
 import data, ask, act
 from event import Event
+from info import Info
+
+
 
 class Market(Event):
     """docstring for Market"""
     
     def invoke(self):
-        if data.embargo:
-            data.probability['Market'] = 0
-            say.line("   ЧП! Экономическая блокада!\n")
+        if self.data.embargo:
+            self.data.probability['Market'] = 0
+            self.say.line("   ЧП! Экономическая блокада!\n")
         else:
-            data.probability['Market'] = 100
-            say.line("   Торговля - двигатель прогресса\n")
+            self.data.probability['Market'] = 100
+            self.say.line("   Торговля - двигатель прогресса\n")
         super().invoke()
     
     
     def start(self):
+        info = Info(self.data)
         """docstring for start"""
         complete = False
-        say.line("\n")
+        self.say.line("\n")
         while not complete:
-            act.erase_line(2)
-            self.broker_wants = round(data.money * random.uniform(0.2, 0.99))
-            say.line("   Маклер просит {:>10n} руб.".format(self.broker_wants))
-            if ask.yesno("Желаете использовать маклера?"):
+            self.say.erase_line(2)
+            self.broker_wants = round(self.data.money * random.uniform(0.2, 0.99))
+            self.say.line("   Маклер просит {:>10n} руб.".format(self.broker_wants))
+            if self.ask.yesno("Желаете использовать маклера?"):
                 complete = self.broker()
                 continue
             
-            act.erase_line(2)
-            if ask.yesno("Желаете сами торговать?"):
+            self.say.erase_line(2)
+            if self.ask.yesno("Желаете сами торговать?"):
                 complete = self.manual()
             else:
-                act.erase_line()
+                self.say.erase_line()
                 break
         else:
-            act.clear_screen()
-            data.print_big_table()
+            self.say.clear_screen()
+            info.big_table()
     
     
     def manual(self):
         """ Сколько чего продать/купить """
-        debet = data.money
+        debet = self.data.money
         credit = 0
-        act.erase_line()
-        say.line("            (+) Покупайте / Продавайте (-):")
-        say.word("Золото (кг), земля (га), зерно (т), рабочие, солдаты (чел)? ")
+        self.say.erase_line()
+        self.say.line("            (+) Покупайте / Продавайте (-):")
+        self.say.word("Золото (кг), земля (га), зерно (т), рабочие, солдаты (чел)? ")
         answer = re.search(r"""(?P<gold>[-+]?\d+)     # 1 золото
                                ([^0-9+-]+)? # delimiter
                                (?P<land>[-+]?\d+)?    # 3 земля
@@ -60,28 +64,28 @@ class Market(Event):
                       re.VERBOSE)
         if answer:
             # проверить достаточность товаров и рассчитать предварительный итог
-            for resource in data.resources.keys():
+            for resource in self.data.resources.keys():
                 value = int(answer.group(resource) or 0)
                 if value > 0:
-                    credit += value * data.prices[resource]
+                    credit += value * self.data.prices[resource]
                 elif value < 0:
-                    if abs(value) > data.resources[resource]:
-                        act.erase_line(2)
+                    if abs(value) > self.data.resources[resource]:
+                        self.say.erase_line(2)
                         print("Вы продаёте товара больше, чем у вас есть!")
                         return not ask.yesno("Повторить?")
                     else:
-                        debet += abs(value) * data.prices[resource]
+                        debet += abs(value) * self.data.prices[resource]
             # проверка достаточности денег
             if debet - credit < 0:
-                act.erase_line(2)
+                self.say.erase_line(2)
                 print("Сделка расторгнута - нехватает {:>10n} руб.".format(debet - credit))
-                return not ask.yesno("Повторить?")
+                return not self.ask.yesno("Повторить?")
             else:
                 # всё верно - завершить сделку
-                for resource in data.resources.keys():
-                    data.money = debet - credit
+                for resource in self.data.resources.keys():
+                    self.data.money = debet - credit
                     value = int(answer.group(resource) or 0)
-                    data.resources[resource] += value
+                    self.data.resources[resource] += value
                 return True
         else:
             return False

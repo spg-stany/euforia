@@ -31,7 +31,7 @@ class Say():
     def clear_screen(self):
         """ Очистить экран """
         
-        # os.system('clear')
+        os.system('clear')
         # print("width {}, height {}".format(os.get_terminal_size()[0], os.get_terminal_size()[1]))
         self.line(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ")
     

@@ -136,6 +136,12 @@ class Vizier(Event):
     #
     def let_him_in(self):
         return self.ask.yesno("Ваше высочество! Прибыл визирь, впустить?")
+
+    def check_rob_caravan(self):
+        pass
+
+    def check_rob_church(self):
+        pass
         
         
         
